@@ -1,26 +1,17 @@
 (function( $ ){
 
 	jwplayerwp = {
-		// Perform search call after user has stopped typing for this many milliseconds.
 		search_timeout:1000,
-
-		// Poll server every given number of milliseconds for upload progress info.
 		upload_poll_interval:2000,
-
-		// The chunk size for resumable uploads.
 		upload_chunk_size:2 * 1024 * 1024,
-
-		// Poll API every given number of milliseconds for thumbnail status.
 		thumb_poll_interval:5000,
-
-		// Width of video thumbnails.
 		thumb_width:40,
 
-		// Timers.
 		search_timer_id:null,
 		thumb_timer_id:null,
 
-		use_button_html: function () {
+		use_button_html: function () 
+		{
 			return $( '<p>' ).addClass( 'button-primary' ).append(
 				$( '<span>' ).addClass( 'jwplayer-narrow' ).text( 'Use' )
 			).append(
@@ -28,7 +19,6 @@
 			);
 		},
 
-		// File extensions.
 		accepted_extensions: {
 			'aac': ['aac','m4a','f4a'],
 			'flv': ['flv'],
@@ -41,18 +31,18 @@
 			'webm': ['webm']
 		},
 
-		// Apparently, there's no built-in javascript method to escape html entities.
-		html_escape:function( str ){
+		html_escape:function( str )
+		{
 			return $( '<div/>' ).text( str ).html();
 		},
 
-		// Test if a string starts with a given prefix.
-		starts_with:function( str, prefix ){
+		starts_with:function( str, prefix )
+		{
 			return str.substr( 0, prefix.length ) === prefix;
 		},
 
-		// Strip a given prefix from a string.
-		lstrip:function( str, prefix ){
+		lstrip:function( str, prefix )
+		{
 			if( jwplayerwp.starts_with( str, prefix ) ){
 				return str.substr( prefix.length );
 			}
@@ -61,37 +51,39 @@
 			}
 		},
 
-		// Construct a thumbnail url for a given video.
-		make_thumb_url:function( video_hash, width ){
+		make_thumb_url:function( video_hash, width )
+		{
 			if( width === undefined ){
 				width = jwplayerwp.thumb_width;
 			}
 			return encodeURI( jwplayerwp.content_mask + '/thumbs/' + video_hash + '-' + width + '.jpg' );
 		},
 
-		// Insert the quicktag into the editor box.
-		insert_quicktag:function( video_hash ){
+		insert_quicktag:function( video_hash )
+		{
 			var hashes = video_hash;
-			if( jwplayerwp.widgets.playerselect.val() ){
+			if( jwplayerwp.widgets.playerselect.val() )
+			{
 				hashes += '-' + jwplayerwp.widgets.playerselect.val();
 			}
 			var quicktag = '[jwplayer ' + hashes + ']';
-			if( jwplayerwp.mediaPage ){
+			if( jwplayerwp.mediaPage )
+			{
 				parent.send_to_editor( quicktag );
 			}
-			else{
+			else
+			{
 				window.send_to_editor( quicktag );
 			}
 			return false;
 		},
 
-		/* Make a list item for a video.
-		 * The `video` parameter must be a dict as returned by the /videos/list call.
-		 */
-		make_video_list_item:function( video ){
+		make_video_list_item:function( video )
+		{
 			var thumb_url, js, make_quicktag;
 			var css_class = jwplayerwp.widgets.list.children().length % 2 ? 'jwplayer-odd' : 'jwplayer-even';
-			if( video.status === 'ready' ){
+			if( video.status === 'ready' )
+			{
 				thumb_url = jwplayerwp.make_thumb_url( video.key );
 				make_quicktag = function( video_key ){
 					return function(){
@@ -99,7 +91,8 @@
 					}
 				}( video.key );
 			}
-			else if( video.status === 'processing' ){
+			else if( video.status === 'processing' )
+			{
 				thumb_url = encodeURI( jwplayerwp.plugin_url + '/../static/img/processing.gif' );
 				make_quicktag = function( video_key ){
 					return function(){
@@ -108,12 +101,13 @@
 				}( video.key );
 				css_class += ' jwplayer-processing';
 			}
-			else if( video.status === 'failed' ){
+			else if( video.status === 'failed' )
+			{
 				thumb_url = encodeURI( jwplayerwp.plugin_url + '/../static/img/video-error-' + jwplayerwp.thumb_width + '.gif' );
 				make_quicktag = null;
 				css_class += ' jwplayer-failed';
 			}
-			// Create the list item
+			
 			var elt = $( '<li>' )
 				.attr( 'id', 'jwplayer-video-' + video.key )
 				.addClass( css_class )
@@ -124,15 +118,16 @@
 				)
 			;
 
-			if( make_quicktag ){
-				// If we can embed, add the functionality to the item
+			if( make_quicktag )
+			{
 				$( 'p.button-primary', elt ).click( make_quicktag );
 			}
 
 			return elt;
 		},
 
-		make_channel_list_item:function( channel ){
+		make_channel_list_item:function( channel )
+		{
 			var thumb_url, js, make_quicktag;
 			var css_class = jwplayerwp.widgets.list.children().length % 2 ? 'jwplayer-odd' : 'jwplayer-even';
 			thumb_url = encodeURI( jwplayerwp.plugin_url + '/../static/img/channel-' + jwplayerwp.thumb_width + '.png' );
@@ -162,18 +157,18 @@
 			return elt;
 		},
 
-		show_wait_cursor:function(){
+		show_wait_cursor:function()
+		{
 			jwplayerwp.widgets.box.addClass( 'jwplayer-busy' );
 		},
 
-		show_normal_cursor:function(){
+		show_normal_cursor:function()
+		{
 			jwplayerwp.widgets.box.removeClass( 'jwplayer-busy' );
 		},
 
-		/* List the most recently uploaded videos. If query is supplied, we will only show
-		 * those that match the given string.
-		 */
-		list_videos:function( query, nr_videos, callback ){
+		list_videos:function( query, nr_videos, callback )
+		{
 			jwplayerwp.show_wait_cursor();
 
 			if( query === undefined ){
@@ -204,14 +199,18 @@
 				dataType:'json',
 				success:function( data ){
 					jwplayerwp.widgets.list.removeClass( 'jwplayer-loading' );
-					if( data && data.status === 'ok' ){
-						if( data.videos.length ){
-							for( var i = 0; i < data.videos.length; i += 1 ){
+					if( data && data.status === 'ok' )
+					{
+						if( data.videos.length )
+						{
+							for( var i = 0; i < data.videos.length; i += 1 )
+							{
 								var elt = jwplayerwp.make_video_list_item( data.videos[i] );
 								jwplayerwp.widgets.list.append( elt );
 							}
 
-							if( jwplayerwp.thumb_timer_id === null ){
+							if( jwplayerwp.thumb_timer_id === null )
+							{
 								jwplayerwp.thumb_timer_id = window.setInterval( jwplayerwp.poll_thumb_progress, jwplayerwp.thumb_poll_interval );
 							}
 						}
@@ -220,28 +219,33 @@
 							callback( data.videos.length );
 						}
 					}
-					else{
+					else
+					{
 						var msg = data ? 'API error: ' + data.message : 'No response from API.';
 						jwplayerwp.widgets.list.empty().append( $( '<li>' ).text( msg ) );
 					}
 
 					jwplayerwp.show_normal_cursor();
 				},
-				error:function( request, message, error ){
+				error:function( request, message, error )
+				{
 					jwplayerwp.widgets.list.empty().append( $( '<p>' ).text( 'AJAX error: ' + message ) );
 					jwplayerwp.show_normal_cursor();
 				}
 			} );
 		},
 
-		list_channels:function( query, nr_videos, callback ){
+		list_channels:function( query, nr_videos, callback )
+		{
 			jwplayerwp.show_wait_cursor();
 
-			if( query === undefined ){
+			if( query === undefined )
+			{
 				query = '';
 			}
 
-			if( nr_videos === undefined ){
+			if( nr_videos === undefined )
+			{
 				nr_videos = jwplayerwp.nr_videos;
 			}
 
@@ -290,7 +294,8 @@
 			} );
 		},
 
-		list:function( query, channels, videos, nr_videos ){
+		list:function( query, channels, videos, nr_videos )
+		{
 			if( query === undefined ){
 				query = $.trim( jwplayerwp.widgets.search.val() );
 			}
@@ -329,13 +334,17 @@
 					}
 				}
 			};
-			var doChannels = function( num ){
-				if( num < nr_videos ){
+			var doChannels = function( num )
+			{
+				if( num < nr_videos )
+				{
 					jwplayerwp.list_channels( query, nr_videos - num, doDescribeEmpty );
 				}
 			};
-			var doVideos = function( num ){
-				if( num < nr_videos ){
+			var doVideos = function( num )
+			{
+				if( num < nr_videos )
+				{
 					jwplayerwp.list_videos( query, nr_videos - num, doChannels );
 				}
 			};
@@ -350,7 +359,8 @@
 			}
 		},
 
-		list_players:function(){
+		list_players:function()
+		{
 			var params = {
 				action:"jwp_api_proxy",
 				method:'/players/list',
@@ -375,10 +385,8 @@
 			} );
 		},
 
-		// Poll API for status of thumbnails.
 		poll_thumb_progress:function(){
 			var processing = jwplayerwp.widgets.list.children( 'li.jwplayer-processing' );
-
 			if( processing.length ){
 				processing.each( function(){
 					var item = $( this );
@@ -475,13 +483,13 @@
 				} );
 			win.children( '.handlediv' ).click( function(){
 				var upload = win.data( 'upload' );
-				if( upload ){
+				if( upload )
+				{
 					upload.cancel();
 					if( ! upload.isResumable() ){
 						$( upload.getIframe() ).remove();
 					}
 				}
-				// win.remove();
 				win.dim.close();
 			} );
 			win.draggable( {handle:'.hndle'} );
@@ -554,16 +562,16 @@
 			return false;
 		},
 
-		// Reset upload timer and widgets.
-		reset_addmedia:function( win ){
+		reset_addmedia:function( win )
+		{
 			win.find( '.jwplayer-addmedia-title' ).val( '' ).removeAttr( 'disabled' );
 			win.find( '.jwplayer-addmedia-sourceurl' ).val( '' ).removeAttr( 'disabled' );
 			win.find( '.jwplayer-message').text('').hide();
 			win.removeClass( 'jwplayer-busy' );
 		},
 
-		// Reset upload timer and widgets.
-		reset_upload:function( win ){
+		reset_upload:function( win )
+		{
 			win.find( '.jwplayer-upload-title' ).val( '' ).removeAttr( 'disabled' );
 			win.find( '.jwplayer-upload-file' ).val( '' ).removeAttr( 'disabled' );
 			win.find( '.jwplayer-upload-submit' ).show();
@@ -571,16 +579,19 @@
 			win.find( '.jwplayer-message').text('').hide();
 			win.removeClass( 'jwplayer-busy' );
 		},
-		// Upload a new video. First, we do a /videos/create call, then we start uploading.
-		upload_video:function( win ){
+		
+		upload_video:function( win )
+		{
 			var title = $( win.find( 'input' ).get( 0 ) );
 			win.addClass( 'jwplayer-busy' );
 
-			if( ! $.browser.msie ){
+			if( ! $.browser.msie )
+			{
 				// IE (at least until 8) will not submit the form if even one attribute of the file input has changed.
 				win.find( 'input' ).attr( 'disabled', 'disabled' );
 			}
-			else{
+			else
+			{
 				win.find( 'input[type!="file"]' ).attr( 'disabled', 'disabled' );
 			}
 
@@ -593,14 +604,18 @@
 				random:Math.random(),
 				token:( $( 'input[name=_wpnonce-widget]' ).length > 0 ) ? $( 'input[name=_wpnonce-widget]' ).val() : ''
 			};
-			if( JWPlayerUpload.resumeSupported() ){
+			if( JWPlayerUpload.resumeSupported() )
+			{
 				data.resumable = 'true';
 			}
 			title = $.trim( title.val() );
 
-			if( title !== '' ){
+			if( title !== '' )
+			{
 				data.title = title;
-			} else {
+			} 
+			else 
+			{
 				data.title = win.find( '.jwplayer-upload-file' ).get( 0 ).files[0].name;
 			}
 
@@ -705,7 +720,8 @@
 			};
 
 
-			if( title !== '' ){
+			if( title !== '' )
+			{
 				data.title = title;
 			}
 
@@ -714,8 +730,10 @@
 
 			data.sourceformat = 'mp4';
 			var tmp = sourceurl.split( '.' ), extension = tmp[tmp.length-1];
-			for ( format in jwplayerwp.accepted_extensions ) {
-				if ( jwplayerwp.accepted_extensions[format].indexOf( extension ) >= 0 ) {
+			for ( format in jwplayerwp.accepted_extensions ) 
+			{
+				if ( jwplayerwp.accepted_extensions[format].indexOf( extension ) >= 0 ) 
+				{
 					data.sourceformat = format;
 					break;
 				}
@@ -741,7 +759,8 @@
 						jwplayerwp.reset_addmedia( win );
 					}
 				},
-				error:function( request, message, error ){
+				error:function( request, message, error )
+				{
 					win.find( '.jwplayer-message' ).text( "AJAX error: " + message ).show();
 					jwplayerwp.reset_addmedia( win );
 				}
