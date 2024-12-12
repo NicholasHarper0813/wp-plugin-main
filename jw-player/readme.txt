@@ -2,7 +2,7 @@
 Contributors: LongTail Video
 Tags: jwplayer, jw, player, jwplatform, video, media, html5
 Requires at least: 4.3
-Tested up to: 4.7.2
+Tested up to: 4.7.3
 Stable tag: 1.6.0
 License: GPLv3
 
@@ -38,14 +38,13 @@ Full documentation on installation, setup and getting started can be found on
 our [Support Site](http://support.jwplayer.com/).
 
 If you have any questions, comments, problems or suggestions please post on our
-[User Forum](http://support.jwplayer.com/).
 
 = Issues & Contributions =
 
 This plugin is open source and we strongly encourage users to contribute to the plugin's development. If you find a bug or another issue, please [report it on the plugin's GitHub mirror](https://github.com/jwplayer/wordpress-plugin/issues) and if you would like to suggest improvements feel free to open a pull request.
 
 * Known Issues:
-    - In some cases the posts list in your admin may appear empty after activating this plugin. [Please help us fix this issue](https://github.com/jwplayer/wordpress-plugin/issues/17).
+    - In some cases the posts list in your admin may appear empty after activating this plugin. [Please help us fix this
 
 
 == Installation ==
@@ -68,7 +67,6 @@ This plugin is open source and we strongly encourage users to contribute to the 
 1. Insert media from your JW Player Account via the media library overlay or ...
 2. ... use the sidebar widget.
 2. You can enable the sidebar widget and edit other settings on the plugin's settings page.
-
 
 == Frequently Asked Questions ==
 
